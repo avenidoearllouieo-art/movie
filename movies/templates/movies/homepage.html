@@ -94,6 +94,81 @@
         .nav-links a:hover {
             background: #5a67d8;
         }
+        .reviews-section {
+            margin-top: 20px;
+        }
+        .review-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .review-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .review-author {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .review-rating {
+            background: #ffd700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #333;
+        }
+        .review-content {
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .review-meta {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 8px;
+        }
+        .helpful-btn {
+            background: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .helpful-btn:hover {
+            background: #d0d0d0;
+        }
+        .rating-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-size: 0.9em;
+        }
+        .expand-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .expand-btn:hover {
+            background: #5a67d8;
+        }
+        .reviews-hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +201,39 @@
             <div class="movie-director">🎭 {{ movie.director }}</div>
             <div class="movie-year">📅 {{ movie.release_year }}</div>
             <div class="movie-rating">⭐ {{ movie.rating }}/5</div>
+            
+            {% if movie.average_user_rating %}
+            <br/>
+            <div class="rating-badge">👥 User Rating: {{ movie.average_user_rating|floatformat:1 }}/5</div>
+            {% endif %}
+            
+            {% if movie.review_count > 0 %}
+            <div class="btn-container">
+                <button class="expand-btn" onclick="toggleReviews(this)">Show {{ movie.review_count }} Review{{ movie.review_count|pluralize }}</button>
+            </div>
+            
+            <div class="reviews-section reviews-hidden" style="max-height: 300px; overflow-y: auto;">
+                {% for review in movie.reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <div>
+                            <span class="review-title">{{ review.title }}</span>
+                            <span class="review-rating">{{ review.rating }}★</span>
+                        </div>
+                        <span class="review-author">{{ review.user_name }}</span>
+                    </div>
+                    <div class="review-content">{{ review.content }}</div>
+                    <div class="review-meta">
+                        👍 {{ review.helpful_count }} people found this helpful
+                        <br/>
+                        {{ review.created_at|date:"M d, Y g:i A" }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: #999; font-size: 0.9em; margin-top: 10px;">📝 No reviews yet. Be the first to review!</p>
+            {% endif %}
         </div>
         {% empty %}
         <div class="movie-card">
@@ -134,5 +242,18 @@
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        function toggleReviews(button) {
+            const reviewsSection = button.parentElement.nextElementSibling;
+            if (reviewsSection && reviewsSection.classList.contains('reviews-hidden')) {
+                reviewsSection.classList.remove('reviews-hidden');
+                button.textContent = button.textContent.replace('Show', 'Hide');
+            } else if (reviewsSection) {
+                reviewsSection.classList.add('reviews-hidden');
+                button.textContent = button.textContent.replace('Hide', 'Show');
+            }
+        }
+    </script>
 </body>
 </html>
